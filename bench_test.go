@@ -49,3 +49,27 @@ func BenchmarkHexRange(b *testing.B) {
 		h3idxs, _ = HexRange(h3idx, 10)
 	}
 }
+
+var (
+	hexes           [][]H3Index
+	hexRangesCenter = H3Index(0x8928308280fffff)
+	hexRangeK       = 5
+)
+
+func BenchmarkHexRangesNative(b *testing.B) {
+	group := KRing(hexRangesCenter, hexRangeK)
+	for n := 0; n < b.N; n++ {
+		hexes = make([][]H3Index, len(group))
+		for i, originHex := range group {
+			out, _ := HexRange(originHex, hexRangeK)
+			hexes[i] = out
+		}
+	}
+}
+
+func BenchmarkHexRangesFromC(b *testing.B) {
+	group := KRing(hexRangesCenter, hexRangeK)
+	for n := 0; n < b.N; n++ {
+		hexes, _ = HexRanges(group, 2)
+	}
+}
